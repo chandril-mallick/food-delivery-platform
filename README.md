@@ -1,39 +1,53 @@
-# 🍱 Dabba - Home-Style Food Delivery App
+# 🍱 Dabba - Home-Style Food Delivery Platform
 
-A comprehensive food delivery platform offering authentic home-style meals with a focus on university campuses. Built with React, Firebase, and Express.
+> Bringing the warmth of home-cooked meals to university students and food lovers everywhere.
 
-![Dabba App](https://img.shields.io/badge/version-1.0.0-blue)
-![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)
-![Firebase](https://img.shields.io/badge/Firebase-10.12.0-FFCA28?logo=firebase)
-![License](https://img.shields.io/badge/license-MIT-green)
+A modern, full-stack food delivery platform specializing in authentic home-style cuisine with **FREE delivery to major university campuses**. Built with React, Firebase, and Express, featuring real-time order tracking, OTP authentication, and an integrated admin dashboard.
 
-## 🌟 Features
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/chandril-mallick/food-delivery-platform)
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-10.12.0-FFCA28?logo=firebase)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
-### Customer Features
-- 📱 **Native Mobile Experience** - App-like interface with bottom navigation
-- 🔐 **OTP Authentication** - Secure phone-based login via Supabase
-- 🍽️ **Dynamic Menu** - Real-time menu with ratings, filters, and search
-- 🛒 **Smart Cart** - Quantity management with haptic feedback
-- 🎓 **University Delivery** - FREE delivery to major university campuses
-- 📦 **Real-time Order Tracking** - Live order status with 30-minute delivery timer
-- 📜 **Order History** - Complete order management and tracking
-- 👤 **User Profiles** - Save addresses, preferences, and payment methods
-- ⭐ **Favorites** - Save favorite dishes for quick reordering
+[Live Demo](#) • [Documentation](#-documentation) • [Features](#-features) • [Contributing](./CONTRIBUTING.md) • [License](./LICENSE)
 
-### Admin Features
-- 📊 **Dashboard** - Real-time statistics and analytics
-- 📋 **Order Management** - Complete order workflow management
-- 🍴 **Menu Management** - Full CRUD operations for menu items
-- 📈 **Analytics** - Revenue tracking and performance metrics
-- 🔄 **Real-time Updates** - Live order status synchronization
+## ✨ Why Dabba?
 
-### Technical Highlights
-- ⚡ **Real-time Database** - Firebase Firestore for instant updates
-- 🎨 **Modern UI** - Tailwind CSS with Framer Motion animations
-- 📱 **Responsive Design** - Mobile-first approach
-- 🔒 **Secure Authentication** - Multi-provider auth (Supabase + Firebase)
-- 🚀 **Performance Optimized** - Code splitting and lazy loading
-- 🎯 **Type Safety** - PropTypes validation
+Dabba revolutionizes food delivery for university students by combining the comfort of home-cooked meals with modern technology. Our platform eliminates delivery fees for campus orders while providing a seamless, app-like experience.
+
+## 🌟 Key Features
+
+### 🎓 University-First Approach
+- **FREE Campus Delivery** to 5 major universities (DU, JNU, IIT Delhi, Jamia, IP University)
+- **Precise Location Tracking** with department, building, and room number
+- **30-Minute Delivery Guarantee** with real-time countdown timer
+- **Campus-Specific Menus** tailored to student preferences
+
+### 📱 Customer Experience
+- **Native Mobile Interface** - iOS/Android-style bottom navigation and haptic feedback
+- **Secure OTP Authentication** - Phone-based login powered by Supabase
+- **Smart Menu System** - Real-time updates, ratings, filters, and intelligent search
+- **Intuitive Cart Management** - Quantity controls with visual feedback
+- **Live Order Tracking** - Real-time status updates from kitchen to doorstep
+- **Complete Order History** - Track past orders and reorder favorites
+- **User Profiles** - Save multiple addresses, preferences, and payment methods
+
+### 🎛️ Admin Dashboard
+- **Real-Time Analytics** - Revenue, orders, and performance metrics at a glance
+- **Order Management** - Complete workflow control with status updates
+- **Menu Management** - Full CRUD operations with image upload
+- **Revenue Tracking** - 7-day charts and financial insights
+- **Live Notifications** - Instant alerts for new orders
+
+### 🚀 Technical Excellence
+- **Real-Time Database** - Firebase Firestore for instant synchronization
+- **Modern UI/UX** - Tailwind CSS with Framer Motion animations
+- **Mobile-First Design** - Responsive across all devices
+- **Multi-Provider Auth** - Supabase OTP + Firebase Anonymous
+- **Performance Optimized** - Code splitting, lazy loading, and caching
+- **Type-Safe** - PropTypes validation throughout
+- **Secure** - Environment variables, Firebase rules, input validation
 
 ## 🏗️ Project Structure
 
@@ -70,8 +84,8 @@ dabba-app/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/dabba-app.git
-cd dabba-app
+git clone https://github.com/chandril-mallick/food-delivery-platform.git
+cd food-delivery-platform
 ```
 
 ### 2. Frontend Setup
@@ -304,45 +318,134 @@ PORT=4000
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+We welcome contributions from the community! Whether it's bug fixes, new features, or documentation improvements, your help makes Dabba better.
+
+### How to Contribute
+
+1. **Fork the repository** and clone it locally
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes** and test thoroughly
+4. **Run security checks**: `./security-check.sh`
+5. **Commit your changes**: `git commit -m 'feat: add amazing feature'`
+6. **Push to your fork**: `git push origin feature/amazing-feature`
+7. **Open a Pull Request** with a clear description
+
+### Contribution Guidelines
+
+- Read our [Contributing Guide](./CONTRIBUTING.md) for detailed instructions
+- Follow our [Code of Conduct](./CONTRIBUTING.md#code-of-conduct)
+- Check [Security Guidelines](./SECURITY.md) before committing
+- Run `./security-check.sh` to ensure no sensitive data is exposed
+- Write clear commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
+
+### Good First Issues
+
+Look for issues labeled `good first issue` or `help wanted` to get started!
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👥 Authors
+## 👨‍💻 Author
 
-- Your Name - Initial work
+**Chandril Mallick**
+- GitHub: [@chandril-mallick](https://github.com/chandril-mallick)
+- Project: [Food Delivery Platform](https://github.com/chandril-mallick/food-delivery-platform)
 
 ## 🙏 Acknowledgments
 
-- Firebase for backend infrastructure
-- Supabase for authentication
-- Tailwind CSS for styling
-- Lucide for icons
-- Create React App for project setup
+This project wouldn't be possible without these amazing technologies:
 
-## 📞 Support
+- **[Firebase](https://firebase.google.com/)** - Real-time database and authentication infrastructure
+- **[Supabase](https://supabase.com/)** - OTP authentication and user management
+- **[React](https://reactjs.org/)** - UI library for building the frontend
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Framer Motion](https://www.framer.com/motion/)** - Animation library
+- **[Lucide](https://lucide.dev/)** - Beautiful icon set
+- **[Express](https://expressjs.com/)** - Backend web framework
+- **[Flutter](https://flutter.dev/)** - Admin mobile app framework
 
-For issues and questions:
-- Create an issue on GitHub
-- Check browser console for errors
-- Review Firebase Console for auth/database issues
-- Check Supabase Dashboard for authentication issues
+Special thanks to the open-source community for their invaluable tools and resources.
 
-## 🔄 Version History
+## 📞 Support & Community
 
-- **1.0.0** (2025-01) - Initial release
-  - Complete food delivery platform
-  - University delivery system
-  - Admin panel integration
-  - Real-time order tracking
-  - OTP authentication
+### Getting Help
+
+- 📖 **Documentation**: Check our [comprehensive guides](#-documentation)
+- 🐛 **Bug Reports**: [Create an issue](https://github.com/chandril-mallick/food-delivery-platform/issues/new)
+- 💡 **Feature Requests**: [Open a discussion](https://github.com/chandril-mallick/food-delivery-platform/discussions)
+- 🔒 **Security Issues**: See [SECURITY.md](./SECURITY.md) for responsible disclosure
+
+### Troubleshooting
+
+Common issues and solutions:
+
+| Issue | Solution |
+|-------|----------|
+| Order placement fails | Enable Firebase Anonymous Authentication in Console |
+| "Missing permissions" error | Update Firestore security rules (see setup guide) |
+| Supabase OTP not working | Configure SMS provider in Supabase dashboard |
+| Backend connection error | Verify `serviceAccountKey.json` location and permissions |
+
+For more help, check the browser console, Firebase Console, or Supabase Dashboard for detailed error messages.
+
+## 📈 Roadmap
+
+### Current Version (v1.0.0)
+- ✅ Complete food delivery platform
+- ✅ University delivery system (5 universities)
+- ✅ Integrated admin dashboard
+- ✅ Real-time order tracking
+- ✅ OTP authentication
+- ✅ Mobile-first responsive design
+
+### Upcoming Features
+- 🔜 Payment gateway integration (Razorpay/Stripe)
+- 🔜 Push notifications for order updates
+- 🔜 Loyalty program and rewards
+- 🔜 Multi-language support
+- 🔜 Advanced analytics dashboard
+- 🔜 Customer reviews and ratings
+- 🔜 Scheduled orders
+- 🔜 Group ordering for events
+
+## 📊 Project Stats
+
+![GitHub stars](https://img.shields.io/github/stars/chandril-mallick/food-delivery-platform?style=social)
+![GitHub forks](https://img.shields.io/github/forks/chandril-mallick/food-delivery-platform?style=social)
+![GitHub issues](https://img.shields.io/github/issues/chandril-mallick/food-delivery-platform)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/chandril-mallick/food-delivery-platform)
+
+## 📚 Documentation
+
+- **[Setup Guide](./PRODUCTION_SETUP.md)** - Detailed production deployment instructions
+- **[Security Guidelines](./SECURITY.md)** - Security best practices and policies
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+- **[Backend API Docs](./food-delivery-server/README.md)** - API endpoints and usage
+- **[Pre-Commit Checklist](./PRE_COMMIT_CHECKLIST.md)** - Security checks before committing
+
+## 🔄 Changelog
+
+### v1.0.0 (January 2025)
+**Initial Release** 🎉
+
+- Complete food delivery platform with React frontend
+- Express backend with Firebase integration
+- University delivery system with FREE campus delivery
+- Real-time order tracking with 30-minute guarantee
+- OTP authentication via Supabase
+- Integrated admin dashboard with analytics
+- Mobile-first responsive design
+- Comprehensive documentation and security guidelines
 
 ---
 
+<div align="center">
+
 **Made with ❤️ for home-style food lovers**
+
+⭐ Star this repo if you find it helpful!
+
+[Report Bug](https://github.com/chandril-mallick/food-delivery-platform/issues) • [Request Feature](https://github.com/chandril-mallick/food-delivery-platform/issues) • [Contribute](./CONTRIBUTING.md)
+
+</div>
