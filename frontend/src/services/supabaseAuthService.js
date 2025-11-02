@@ -1,0 +1,277 @@
+// src/services/supabaseAuthService.js
+// Lightweight phone OTP service using Supabase Auth
+// Usage:
+//   import supabaseAuth from './supabaseAuthService'
+//   const { success, error } = await supabaseAuth.sendOTP('+919876543210')
+//   const { success, user, session, error } = await supabaseAuth.verifyOTP('+919876543210', '123456')
+
+import { supabase } from '../lib/supabaseClient'
+import { db, auth as firebaseAuth } from '../firebase/config'
+
+let _anonAuthStarted = false
+const ensureFirebaseAuth = async () => {
+  if (_anonAuthStarted) return
+  _anonAuthStarted = true
+  try {
+    const { signInAnonymously, onAuthStateChanged } = await import('firebase/auth')
+    // If already signed in, skip
+    if (firebaseAuth.currentUser) return
+    await signInAnonymously(firebaseAuth)
+    // Optionally wait for state
+    await new Promise((resolve) => {
+      const unsub = onAuthStateChanged(firebaseAuth, () => {
+        unsub()
+        resolve()
+      })
+    })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[Supabase] Anonymous Firebase auth failed (Firestore may require auth):', e?.message)
+  }
+}
+
+const normalizePhone = (phone) => {
+  const digitsOnly = String(phone || '').replace(/\D/g, '')
+  if (!digitsOnly) return ''
+
+  if (digitsOnly.startsWith('91')) return `+${digitsOnly}` // already has country code
+  if (String(phone).startsWith('+')) return `+${digitsOnly}`
+  return `+91${digitsOnly}` // default India
+}
+
+class SupabaseAuthService {
+  // Send OTP via SMS
+  async sendOTP(phone) {
+    const formatted = normalizePhone(phone)
+    if (!formatted) {
+      return { success: false, error: 'Please enter a valid phone number' }
+    }
+
+    // Helpful debug log in development
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.debug('[Supabase] Sending OTP to', formatted)
+    }
+
+    const options = {
+      // 60s default. You can raise on server side in Supabase Auth settings.
+      shouldCreateUser: true
+    }
+    // Only force SMS channel if explicitly enabled via env and provider is configured
+    if (process.env.REACT_APP_SUPABASE_USE_SMS_CHANNEL === 'true') {
+      options.channel = 'sms'
+    }
+
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone: formatted,
+      options
+    })
+
+    if (error) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.error('[Supabase] signInWithOtp error', { status: error.status, message: error.message, phone: formatted })
+      }
+      // Provide actionable guidance for common 400 issues
+      let message = error.message || 'Failed to send OTP'
+      if (String(error.message).toLowerCase().includes('phone')) {
+        message = 'Invalid phone number. Use full number with country code, e.g. +919733960909'
+      }
+      // When using Test Phone Numbers in Supabase, ensure mapping includes country code without plus, e.g. 919733960909=123456
+      if (error.status === 400) {
+        message += ' • Check Supabase Auth: Providers → Phone is enabled and SMS provider or Test Phone Numbers are configured (use 919...=123456 for India)'
+      }
+      if (String(error.message).toLowerCase().includes('unsupported phone provider')) {
+        message = 'Unsupported phone provider. Either configure an SMS provider (Twilio) in Supabase Auth or remove forcing the SMS channel. You can enable SMS channel by setting REACT_APP_SUPABASE_USE_SMS_CHANNEL=true (requires dev server restart). For testing without Twilio, keep it false and use Test Phone Numbers.'
+      }
+      if (process.env.NODE_ENV !== 'production') {
+        message += ` • Sent phone: ${formatted}`
+      }
+      return { success: false, error: message }
+    }
+
+    return { success: true, data }
+  }
+
+  // Verify the OTP and sign in
+  async verifyOTP(phone, token, additionalData = {}) {
+    const formatted = normalizePhone(phone)
+    if (!formatted || !token) {
+      return { success: false, error: 'Phone and OTP are required' }
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: formatted,
+      token,
+      type: 'sms'
+    })
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    const { user, session } = data || {}
+
+    // Optionally create/update a profile in Firestore to match your existing schema
+    if (db && user?.id) {
+      try {
+        await ensureFirebaseAuth()
+        // dynamic import to avoid hard dependency when Firebase isn't present
+        const { doc, getDoc, setDoc, updateDoc } = await import('firebase/firestore')
+        const userRef = doc(db, 'users', user.id)
+        const snap = await getDoc(userRef)
+        const payload = {
+          uid: user.id,
+          phoneNumber: user.phone,
+          lastLogin: new Date(),
+          updatedAt: new Date(),
+          // Tie this Supabase user doc to the current Firebase (anonymous) auth uid for Firestore rules
+          authUid: firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : undefined,
+          ...additionalData
+        }
+        if (!snap.exists()) {
+          await setDoc(userRef, { ...payload, createdAt: new Date(), addresses: [], orderHistory: [] })
+        } else {
+          await updateDoc(userRef, payload)
+        }
+      } catch (profileErr) {
+        // eslint-disable-next-line no-console
+        console.warn('[Supabase] Skipped Firestore profile sync:', profileErr?.message)
+      }
+    }
+
+    return { success: true, user, session }
+  }
+
+  // Get current Supabase session/user
+  async getSession() {
+    const { data } = await supabase.auth.getSession()
+    return data?.session || null
+  }
+
+  async getUser() {
+    const { data } = await supabase.auth.getUser()
+    return data?.user || null
+  }
+
+  async signOut() {
+    const { error } = await supabase.auth.signOut()
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+  }
+
+  // Auth state listener compatible with Firebase
+  onAuthStateChanged(callback) {
+    // Get initial session
+    this.getUser().then(user => {
+      callback(user);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      callback(session?.user || null);
+    });
+
+    // Return unsubscribe function
+    return () => {
+      subscription.unsubscribe();
+    };
+  }
+
+  // User profile management methods (compatible with Firebase structure)
+  async getUserProfile(userId) {
+    if (!db) {
+      // If no Firebase, return basic profile from Supabase user
+      const user = await this.getUser();
+      return user ? {
+        uid: user.id,
+        phoneNumber: user.phone,
+        displayName: user.user_metadata?.displayName || '',
+        addresses: [],
+        orderHistory: []
+      } : null;
+    }
+
+    try {
+      // Ensure we are signed into Firebase (anonymous) before reading
+      await ensureFirebaseAuth()
+      const { doc, getDoc } = await import('firebase/firestore');
+      const userRef = doc(db, 'users', userId);
+      const snap = await getDoc(userRef);
+      return snap.exists() ? snap.data() : null;
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      return null;
+    }
+  }
+
+  async updateUserProfile(userId, profileData) {
+    if (!db) {
+      return { success: false, error: 'Firestore not available' };
+    }
+
+    try {
+      await ensureFirebaseAuth()
+      const { doc, setDoc } = await import('firebase/firestore');
+      const userRef = doc(db, 'users', userId);
+      const payload = {
+        ...profileData,
+        updatedAt: new Date(),
+        // Ensure authUid present when creating via merge (satisfies create rule)
+        authUid: firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : undefined
+      };
+      await setDoc(userRef, payload, { merge: true });
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async addAddress(userId, address) {
+    if (!db) {
+      return { success: false, error: 'Firestore not available' };
+    }
+
+    try {
+      await ensureFirebaseAuth()
+      const { doc, getDoc, setDoc, updateDoc, arrayUnion } = await import('firebase/firestore');
+      const userRef = doc(db, 'users', userId);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(
+          userRef,
+          {
+            addresses: [address],
+            updatedAt: new Date(),
+            createdAt: new Date(),
+            authUid: firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : undefined
+          },
+          { merge: true }
+        );
+      } else {
+        await updateDoc(userRef, {
+          addresses: arrayUnion(address),
+          updatedAt: new Date()
+        });
+      }
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding address:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Alias for signOut to match Firebase interface
+  async logout() {
+    return await this.signOut();
+  }
+
+  // Cleanup method (no-op for Supabase)
+  cleanup() {
+    // No cleanup needed for Supabase
+  }
+}
+
+const supabaseAuth = new SupabaseAuthService()
+export default supabaseAuth
