@@ -1,0 +1,125 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // ========== Support Tickets ==========
+    match /supportTickets/{ticketId} {
+      // Anyone authenticated (can be anonymous via ensureFirebaseAuth) can create a ticket
+      allow create: if isSignedIn();
+
+      // A user can read their own tickets; admins can read all
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      // Only admins can update/delete tickets
+      allow update, delete: if isAdmin();
+    }
+
+    // Prefer custom claims for admin. Set via Firebase Admin SDK:
+    // admin.auth().setCustomUserClaims(uid, { admin: true })
+    function isAdmin() {
+      return isSignedIn() && (request.auth.token.admin == true ||
+        // Fallback: allow specific emails (replace with your real admin emails). Remove if using claims.
+        request.auth.token.email in [
+          // "owner@example.com",
+          // "admin@example.com"
+        ]
+      );
+    }
+
+    // Validate common field types
+    function isString(field) {
+      return field is string;
+    }
+    function isBool(field) {
+      return field is bool;
+    }
+
+    // ========== Public read-only content ==========
+    // Use a parameterized match; allow read only if collection is one of the allowed public collections
+    match /{publicColl}/{docId} {
+      allow read: if publicColl in ["menuItems", "menu", "Menu", "popular menu", "offers", "cms", "motherStories"];
+      allow write: if false;
+    }
+
+    // Settings collection
+    match /settings/{docId} {
+      // Allow read of all settings docs by anyone
+      allow read: if true;
+
+      // Only admins can write settings
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(["isOpen", "message", "updatedAt", "updatedBy"]) &&
+        (
+          // Type validation for appStatus doc
+          (docId == "appStatus" &&
+            (
+              !("isOpen" in request.resource.data) || isBool(request.resource.data.isOpen)
+            ) &&
+            (
+              !("message" in request.resource.data) || isString(request.resource.data.message)
+            )
+          ) || (docId != "appStatus")
+        );
+    }
+
+    // ========== User profiles ==========
+match /users/{userId} {
+  // Read rules (same as before)
+  allow get: if (
+    (isSignedIn() && resource.data.authUid == request.auth.uid) ||
+    (isSignedIn() && !("authUid" in resource.data) && resource.data.uid == userId) ||
+    isAdmin() ||
+    !exists(/databases/$(database)/documents/users/$(userId))
+  );
+
+  allow list: if isAdmin();
+
+  // Create allowed only for self
+  allow create: if isSignedIn()
+                && request.resource.data.authUid == request.auth.uid
+                && request.resource.data.uid == userId;
+
+  // ✅ Updated update/delete
+  allow update, delete: if (
+    isSignedIn() &&
+    (
+      // Case 1: Firebase UID matches
+      resource.data.authUid == request.auth.uid ||
+      // Case 2: Legacy docs without authUid — match Supabase userId in path
+      (!("authUid" in resource.data) && resource.data.uid == userId)
+    )
+  ) || isAdmin();
+}
+
+
+    // ========== Orders ==========
+    match /orders/{orderId} {
+      // A user can create an order for themselves only
+      // Support both legacy userId == Firebase UID and new authUid == Firebase UID
+      allow create: if isSignedIn() && (
+        request.resource.data.userId == request.auth.uid ||
+        request.resource.data.authUid == request.auth.uid
+      );
+
+      // A user can read their own orders
+      // Allow if either stored userId matches Firebase UID (legacy) OR stored authUid matches current Firebase UID
+      allow read: if (
+        isSignedIn() && (
+          resource.data.userId == request.auth.uid ||
+          resource.data.authUid == request.auth.uid
+        )
+      ) || isAdmin();
+
+      // A user cannot update status; only admins can update or delete
+      allow update, delete: if isAdmin();
+    }
+
+    // Default deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,23 +1,78 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.js
 
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
+# Environment variables
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.firebaserc
+
+# Firebase Service Account Keys (CRITICAL - NEVER COMMIT)
+serviceAccountKey.json
+*serviceAccountKey*.json
+firebase-adminsdk*.json
+food-delivery-server/serviceAccountKey.json
+
+# Build files
+/build
+/dist
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local development
+.cache/
+.vercel/
+.netlify
+
+# Testing
+/coverage
+
+# Production
+/Admin_app/node_modules
+/frontend/node_modules
+/functions/node_modules
+/food-delivery-server/node_modules
+
+# Misc
+*.pem
+*.p8
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+*.der
