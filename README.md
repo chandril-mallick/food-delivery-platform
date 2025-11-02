@@ -10,7 +10,7 @@ A modern, full-stack food delivery platform specializing in authentic home-style
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
-[Live Demo](#) • [Documentation](#-documentation) • [Features](#-features) • [Contributing](./CONTRIBUTING.md) • [License](./LICENSE)
+[Live Demo](https://dabbabot-85186.firebaseapp.com/) • [Documentation](#-documentation) • [Features](#-features) • [Contributing](./CONTRIBUTING.md) • [License](./LICENSE)
 
 ## ✨ Why Dabba?
 
